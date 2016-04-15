@@ -46,7 +46,7 @@ var cliSuffixes = map[string]int64{
 }
 
 // ParseCLI parses s and returns the corresponding size in bytes.
-// s is a number followed by a unit, no whitespace allowed.
+// s is a number followed by a unit (optional), no whitespace allowed.
 // Units are K,M,G,T,P,E,Z,Y (powers of 1024) or KB,MB,... (powers of 1000).
 // ParseCLI is not case sensitive.
 func ParseCLI(s string) (ByteSize, error) {
