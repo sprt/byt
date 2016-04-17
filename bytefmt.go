@@ -8,11 +8,10 @@ import (
 	"strings"
 )
 
-// ByteSize represents a quantity in bytes.
-type ByteSize int64
+type unit int64
 
 const (
-	_ = 1 << (10 * iota)
+	Byte unit = 1 << (10 * iota)
 
 	Kibibyte
 	Mebibyte
@@ -29,7 +28,25 @@ const (
 	Exabyte  = 1e18
 )
 
-var cliSuffixes = map[string]int64{
+var unitSymbols = map[unit]string{
+	Byte: "B",
+
+	Kibibyte: "KiB",
+	Mebibyte: "MiB",
+	Gibibyte: "GiB",
+	Tebibyte: "TiB",
+	Pebibyte: "PiB",
+	Exbibyte: "EiB",
+
+	Kilobyte: "KB",
+	Megabyte: "MB",
+	Gigabyte: "GB",
+	Terabyte: "TB",
+	Petabyte: "PB",
+	Exabyte:  "EB",
+}
+
+var cliSuffixes = map[string]unit{
 	"k": Kibibyte,
 	"m": Mebibyte,
 	"g": Gibibyte,
@@ -43,6 +60,29 @@ var cliSuffixes = map[string]int64{
 	"tb": Terabyte,
 	"pb": Petabyte,
 	"eb": Exabyte,
+}
+
+// ByteSize represents a quantity in bytes.
+type ByteSize int64
+
+// Format returns a human-friendly string with a binary prefix.
+func (s ByteSize) Format() string {
+	return s.format(Kibibyte)
+}
+
+// FormatSI returns a human-friendly string with an SI prefix.
+func (s ByteSize) FormatSI() string {
+	return s.format(Kilobyte)
+}
+
+func (s ByteSize) format(un unit) string {
+	ss := unit(s)
+	u := Byte
+	for ss >= un {
+		ss /= un
+		u *= un
+	}
+	return fmt.Sprintf("%.1f %s", float64(s)/float64(u), unitSymbols[u])
 }
 
 // ParseCLI parses s and returns the corresponding size in bytes.

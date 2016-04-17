@@ -5,6 +5,64 @@ import (
 	"testing"
 )
 
+func ExampleFormat() {
+	fmt.Println(ByteSize(2560).Format())
+	// Output: 2.5 KiB
+}
+
+func TestFormat(t *testing.T) {
+	tests := []struct {
+		in  int64
+		out string
+	}{
+		{1, "1.0 B"},
+		{1000, "1000.0 B"},
+		{1023, "1023.0 B"},
+		{1024, "1.0 KiB"},
+		{1536, "1.5 KiB"},
+		{1048576, "1.0 MiB"},
+		{1 << 30, "1.0 GiB"},
+		{1 << 40, "1.0 TiB"},
+		{1 << 50, "1.0 PiB"},
+		{1 << 60, "1.0 EiB"},
+	}
+
+	for _, tt := range tests {
+		s := ByteSize(tt.in).Format()
+		if s != tt.out {
+			t.Errorf("%d => %q, expected %q", tt.in, s, tt.out)
+		}
+	}
+}
+
+func ExampleFormatSI() {
+	fmt.Println(ByteSize(2500).FormatSI())
+	// Output: 2.5 KB
+}
+
+func TestFormatSI(t *testing.T) {
+	tests := []struct {
+		in  int64
+		out string
+	}{
+		{1, "1.0 B"},
+		{1e3, "1.0 KB"},
+		{1500, "1.5 KB"},
+		{1e6, "1.0 MB"},
+		{1e9, "1.0 GB"},
+		{1e12, "1.0 TB"},
+		{1e15, "1.0 PB"},
+		{1e18, "1.0 EB"},
+	}
+
+	for _, tt := range tests {
+		s := ByteSize(tt.in).FormatSI()
+		if s != tt.out {
+			t.Errorf("%d => %q, expected %q", tt.in, s, tt.out)
+		}
+	}
+}
+
 func ExampleParseCLI() {
 	fmt.Println(ParseCLI("2.5k"))
 	// Output: 2560 <nil>
