@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func ExampleFormat() {
+func ExampleByteSize_Format() {
 	fmt.Println(ByteSize(2560).Format())
 	// Output: 2.5 KiB
 }
@@ -35,7 +35,7 @@ func TestFormat(t *testing.T) {
 	}
 }
 
-func ExampleFormatSI() {
+func ExampleByteSize_FormatSI() {
 	fmt.Println(ByteSize(2500).FormatSI())
 	// Output: 2.5 KB
 }
