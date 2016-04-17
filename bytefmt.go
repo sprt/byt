@@ -11,55 +11,55 @@ import (
 type unit int64
 
 const (
-	Byte unit = 1 << (10 * iota)
+	byt unit = 1 << (10 * iota)
 
-	Kibibyte
-	Mebibyte
-	Gibibyte
-	Tebibyte
-	Pebibyte
-	Exbibyte
+	kibibyte
+	mebibyte
+	gibibyte
+	tebibyte
+	pebibyte
+	exbibyte
 
-	Kilobyte = 1e3
-	Megabyte = 1e6
-	Gigabyte = 1e9
-	Terabyte = 1e12
-	Petabyte = 1e15
-	Exabyte  = 1e18
+	kilobyte = 1e3
+	megabyte = 1e6
+	gigabyte = 1e9
+	terabyte = 1e12
+	petabyte = 1e15
+	exabyte  = 1e18
 )
 
 var unitSymbols = map[unit]string{
-	Byte: "B",
+	byt: "B",
 
-	Kibibyte: "KiB",
-	Mebibyte: "MiB",
-	Gibibyte: "GiB",
-	Tebibyte: "TiB",
-	Pebibyte: "PiB",
-	Exbibyte: "EiB",
+	kibibyte: "KiB",
+	mebibyte: "MiB",
+	gibibyte: "GiB",
+	tebibyte: "TiB",
+	pebibyte: "PiB",
+	exbibyte: "EiB",
 
-	Kilobyte: "KB",
-	Megabyte: "MB",
-	Gigabyte: "GB",
-	Terabyte: "TB",
-	Petabyte: "PB",
-	Exabyte:  "EB",
+	kilobyte: "KB",
+	megabyte: "MB",
+	gigabyte: "GB",
+	terabyte: "TB",
+	petabyte: "PB",
+	exabyte:  "EB",
 }
 
 var cliSuffixes = map[string]unit{
-	"k": Kibibyte,
-	"m": Mebibyte,
-	"g": Gibibyte,
-	"t": Tebibyte,
-	"p": Pebibyte,
-	"e": Exbibyte,
+	"k": kibibyte,
+	"m": mebibyte,
+	"g": gibibyte,
+	"t": tebibyte,
+	"p": pebibyte,
+	"e": exbibyte,
 
-	"kb": Kilobyte,
-	"mb": Megabyte,
-	"gb": Gigabyte,
-	"tb": Terabyte,
-	"pb": Petabyte,
-	"eb": Exabyte,
+	"kb": kilobyte,
+	"mb": megabyte,
+	"gb": gigabyte,
+	"tb": terabyte,
+	"pb": petabyte,
+	"eb": exabyte,
 }
 
 // ByteSize represents a quantity in bytes.
@@ -67,17 +67,17 @@ type ByteSize int64
 
 // Format returns a human-friendly string with a binary prefix.
 func (s ByteSize) Format() string {
-	return s.format(Kibibyte)
+	return s.format(kibibyte)
 }
 
 // FormatSI returns a human-friendly string with an SI prefix.
 func (s ByteSize) FormatSI() string {
-	return s.format(Kilobyte)
+	return s.format(kilobyte)
 }
 
 func (s ByteSize) format(un unit) string {
 	ss := unit(s)
-	u := Byte
+	u := byt
 	for ss >= un {
 		ss /= un
 		u *= un
