@@ -28,7 +28,7 @@ const (
 	exabyte  = 1e18
 )
 
-var unitSymbols = map[unit]string{
+var symbols = map[unit]string{
 	byt: "B",
 
 	kibibyte: "KiB",
@@ -46,7 +46,7 @@ var unitSymbols = map[unit]string{
 	exabyte:  "EB",
 }
 
-var cliSuffixes = map[string]unit{
+var suffixes = map[string]unit{
 	"k": kibibyte,
 	"m": mebibyte,
 	"g": gibibyte,
@@ -65,34 +65,48 @@ var cliSuffixes = map[string]unit{
 // ByteSize represents a quantity in bytes.
 type ByteSize int64
 
-// Format returns a human-friendly string with a binary prefix.
-func (s ByteSize) Format() string {
-	return s.format(kibibyte)
+func (s ByteSize) Binary() fmt.Formatter {
+	return &formatter{s, kibibyte}
 }
 
-// FormatSI returns a human-friendly string with an SI prefix.
-func (s ByteSize) FormatSI() string {
-	return s.format(kilobyte)
+func (s ByteSize) SI() fmt.Formatter {
+	return &formatter{s, kilobyte}
 }
 
-func (s ByteSize) format(un unit) string {
-	ss := unit(s)
-	u := byt
+func (s ByteSize) format(un unit) (float64, string) {
+	u, ss := byt, unit(s)
 	for ss >= un {
 		ss /= un
 		u *= un
 	}
-	return fmt.Sprintf("%.1f %s", float64(s)/float64(u), unitSymbols[u])
+	return float64(s) / float64(u), symbols[u]
+}
+
+type formatter struct {
+	bs ByteSize
+	un unit
+}
+
+func (f *formatter) Format(s fmt.State, verb rune) {
+	n, un := f.bs.format(f.un)
+	prec, ok := s.Precision()
+	if !ok {
+		prec = -1
+	}
+	var b []byte
+	b = strconv.AppendFloat(b, n, 'f', prec, 64)
+	b = append(b, ' ')
+	b = append(b, un...)
+	s.Write(b)
 }
 
 // ParseCLI parses s and returns the corresponding size in bytes.
-// s is a number followed by a unit (optional), no whitespace allowed.
-// Units are K,M,G,T,P,E,Z,Y (powers of 1024) or KB,MB,... (powers of 1000).
+// s is a number followed by a unit (optional).
+// Units are K,M,G,T,P,E,Z,Y (powers of 1024) and KB,MB,... (powers of 1000).
 // ParseCLI is not case sensitive.
 func ParseCLI(s string) (ByteSize, error) {
 	s = strings.ToLower(s)
-
-	for suffix, size := range cliSuffixes {
+	for suffix, size := range suffixes {
 		if strings.HasSuffix(s, suffix) {
 			x, err := parseFloat(strings.TrimSuffix(s, suffix))
 			if err != nil {
@@ -101,12 +115,10 @@ func ParseCLI(s string) (ByteSize, error) {
 			return ByteSize(x * float64(size)), nil
 		}
 	}
-
-	x, err := parseFloat(s)
-	if err != nil {
-		return 0, err
+	x, err := strconv.ParseFloat(s, 64)
+	if err != nil || math.IsInf(x, 0) || math.IsNaN(x) {
+		return 0, fmt.Errorf("cannot parse %q", s)
 	}
-
 	return ByteSize(x), nil
 }
 
