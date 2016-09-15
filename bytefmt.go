@@ -62,7 +62,7 @@ var suffixes = map[string]unit{
 	"eb": exabyte,
 }
 
-// ByteSize represents a quantity in bytes.
+// A ByteSize is a quantity in bytes. It implements the flag.Value interface.
 type ByteSize int64
 
 func (s ByteSize) Binary() fmt.Formatter {
@@ -71,6 +71,19 @@ func (s ByteSize) Binary() fmt.Formatter {
 
 func (s ByteSize) SI() fmt.Formatter {
 	return &formatter{s, kilobyte}
+}
+
+func (s *ByteSize) Set(v string) error {
+	x, err := ParseCLI(v)
+	if err != nil {
+		return err
+	}
+	*s = x
+	return nil
+}
+
+func (s *ByteSize) String() string {
+	return strconv.FormatInt(int64(*s), 10)
 }
 
 func (s ByteSize) format(un unit) (float64, string) {
