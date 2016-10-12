@@ -1,4 +1,4 @@
-package bytefmt
+package byt
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleByteSize_Binary() {
-	fmt.Printf("%.1f", ByteSize(2560).Binary())
+	fmt.Printf("%.1f", Size(2560).Binary())
 	// Output: 2.5 KiB
 }
 
@@ -28,7 +28,7 @@ func TestByteSize_Binary(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		s := fmt.Sprintf("%.1f", ByteSize(tt.in).Binary())
+		s := fmt.Sprintf("%.1f", Size(tt.in).Binary())
 		if s != tt.out {
 			t.Errorf("%d => %q, expected %q", tt.in, s, tt.out)
 		}
@@ -36,7 +36,7 @@ func TestByteSize_Binary(t *testing.T) {
 }
 
 func ExampleByteSize_SI() {
-	fmt.Printf("%.2f", ByteSize(2560).SI())
+	fmt.Printf("%.2f", Size(2560).Decimal())
 	// Output: 2.56 KB
 }
 
@@ -56,7 +56,7 @@ func TestFormatSI(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		s := fmt.Sprintf("%.1f", ByteSize(tt.in).SI())
+		s := fmt.Sprintf("%.1f", Size(tt.in).Decimal())
 		if s != tt.out {
 			t.Errorf("%d => %q, expected %q", tt.in, s, tt.out)
 		}
@@ -64,14 +64,14 @@ func TestFormatSI(t *testing.T) {
 }
 
 func ExampleParseCLI() {
-	fmt.Print(ParseCLI("2.5k"))
+	fmt.Print(parseCLI("2.5k"))
 	// Output: 2560 <nil>
 }
 
 func TestParseCLI(t *testing.T) {
 	tests := []struct {
 		in  string
-		out ByteSize
+		out Size
 		err bool
 	}{
 		{"", 0, true},
@@ -117,7 +117,7 @@ func TestParseCLI(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		out, err := ParseCLI(tt.in)
+		out, err := parseCLI(tt.in)
 		if out != tt.out {
 			t.Errorf("ParseCLI(%q) => %g, expected %g", tt.in, float64(out), float64(tt.out))
 		}
